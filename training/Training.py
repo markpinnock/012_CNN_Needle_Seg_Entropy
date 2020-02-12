@@ -33,7 +33,7 @@ arguments = parser.parse_args()
 
 # Generate file path and data path
 if arguments.file_path == None:
-    FILE_PATH = "C:/Users/roybo/OneDrive - University College London/Collaborations/RobotNeedleSeg/Code/001_CNN_Robotic_Needle_Seg/"
+    FILE_PATH = "C:/Users/roybo/OneDrive - University College London/PhD/PhD_Prog/012_CNN_Needle_Seg_Entropy/"
 else:
     FILE_PATH = arguments.file_path
 
@@ -169,8 +169,8 @@ for epoch in range(EPOCHS):
         val_count = 1e-6
 
     # Print losses every epoch
-    print(f"Epoch: {epoch + 1}, Train Loss: {train_metric / (train_count)}, Val Loss: {val_metric / (val_count)}, Entropy 3D {entropy_metric_1 / train_count}, Entropy 2D {entropy_metric_2 / train_count}")
-    log_file.write(f"Epoch: {epoch + 1}, Train Loss: {train_metric.result()}, Val Loss: {val_metric.result()}\n")
+    print(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, Entropy 3D {entropy_metric_1 / train_count}, Entropy 2D {entropy_metric_2 / train_count}")
+    log_file.write(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}\n")
     train_metric = 0
     val_metric = 0
 
