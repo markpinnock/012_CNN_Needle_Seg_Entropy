@@ -171,26 +171,25 @@ for epoch in range(EPOCHS):
     train_metric = 0
     val_metric = 0
 
-    if (epoch + 1) % 100 == 0:
+    if (epoch + 1) % EPOCHS == 0:
         # Generate example images and save
         fig, axs = plt.subplots(4, NUM_EX)
 
-        for i in range(4):
-            for j in range(NUM_EX):
-                for data in imgLoader(img_path.encode("utf-8"), seg_path.encode("utf-8"), [img_examples[j]], [seg_examples[j]], False):
-                    img = data[0]
-                    seg = data[1]
+        for j in range(NUM_EX):
+            for data in imgLoader(img_path.encode("utf-8"), seg_path.encode("utf-8"), [img_examples[j]], [seg_examples[j]], False):
+                img = data[0]
+                seg = data[1]
 
-                pred, _ = UNet(img[np.newaxis, ...], training=False)
+            pred, _ = UNet(img[np.newaxis, ...], training=False)
 
-                axs[0, j].imshow(np.fliplr(img[:, :, 1, 0].T), cmap='gray', vmin=0.12, vmax=0.18, origin='lower')
-                axs[0, j].axis('off')
-                axs[1, j].imshow(np.fliplr(pred[0, :, :, 1, 0].numpy().T), cmap='hot', origin='lower')
-                axs[1, j].axis('off')
-                axs[2, j].imshow(np.fliplr(seg[:, :, 1, 0].T), cmap='gray', origin='lower')
-                axs[2, j].axis('off')
-                axs[3, j].imshow(np.fliplr(img[:, :, 1, 0].T * pred[0, :, :, 1, 0].numpy().T), cmap='gray', origin='lower')
-                axs[3, j].axis('off')
+            axs[0, j].imshow(np.fliplr(img[:, :, 1, 0].T), cmap='gray', vmin=0.12, vmax=0.18, origin='lower')
+            axs[0, j].axis('off')
+            axs[1, j].imshow(np.fliplr(pred[0, :, :, 1, 0].numpy().T), cmap='hot', origin='lower')
+            axs[1, j].axis('off')
+            axs[2, j].imshow(np.fliplr(seg[:, :, 1, 0].T), cmap='gray', origin='lower')
+            axs[2, j].axis('off')
+            axs[3, j].imshow(np.fliplr(img[:, :, 1, 0].T * pred[0, :, :, 1, 0].numpy().T), cmap='gray', origin='lower')
+            axs[3, j].axis('off')
 
         fig.subplots_adjust(wspace=0.025, hspace=0.1)
         plt.savefig(f"{IMAGE_SAVE_PATH}/Epoch_{epoch + 1}.png", dpi=250)
