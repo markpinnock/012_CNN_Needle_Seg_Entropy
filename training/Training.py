@@ -140,8 +140,7 @@ if arguments.file_path == None:
 
 # Create losses
 train_metric = 0
-entropy_metric_1 = 0
-entropy_metric_2 = 0
+entropy_metric = 0
 val_metric = 0
 train_count = 0
 val_count = 0
@@ -153,12 +152,10 @@ start_time = time.time()
 # Training
 for epoch in range(EPOCHS):
     for img, seg in train_ds.batch(MB_SIZE):
-        temp_metric, temp_entropy_1, temp_entropy_2 = trainStep(img, seg, UNet, Optimiser)
+        temp_metric, temp_entropy = trainStep(img, seg, UNet, Optimiser)
         train_metric += temp_metric
-        entropy_metric_1 += temp_entropy_1
-        entropy_metric_2 += temp_entropy_2
+        entropy_metric += temp_entropy
         train_count += 1
-        print(temp_entropy_1, temp_entropy_2)
 
     # Validation step if required
     if NUM_FOLDS > 0:
@@ -169,8 +166,8 @@ for epoch in range(EPOCHS):
         val_count = 1e-6
 
     # Print losses every epoch
-    print(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, Entropy 3D {entropy_metric_1 / train_count}, Entropy 2D {entropy_metric_2 / train_count}")
-    log_file.write(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}\n")
+    print(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, Entropy {entropy_metric / train_count}")
+    log_file.write(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, , Entropy {entropy_metric / train_count}\n")
     train_metric = 0
     val_metric = 0
 
