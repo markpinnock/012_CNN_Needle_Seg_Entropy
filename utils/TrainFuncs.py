@@ -53,7 +53,7 @@ def trainStep(imgs, segs, Model, ModelOptimiser, lambd):
 
 @tf.function
 def valStep(imgs, labels, Model):
-    prediction = Model(imgs, training=False)
+    prediction, _ = Model(imgs, training=False)
     loss = diceLoss(prediction, labels)
     
     return loss

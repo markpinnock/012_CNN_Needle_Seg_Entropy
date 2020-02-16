@@ -11,6 +11,7 @@ import tensorflow as tf
 import time
 
 sys.path.append('..')
+sys.path.append('/home/mpinnock/Entropy/012_CNN_Needle_Seg_Entropy/')
 
 from Networks import UNetGen
 from utils.DataLoader import imgLoader
