@@ -38,12 +38,12 @@ def kernelEntropyCalc(Model):
     return entropy_sum / 64
 
 
-def trainStep(imgs, segs, Model, ModelOptimiser):
+def trainStep(imgs, segs, Model, ModelOptimiser, lambd):
     mean_entropy = kernelEntropyCalc(Model)
 
     with tf.GradientTape() as tape:
         prediction, _ = Model(imgs, training=True)
-        loss = diceLoss(prediction, segs)
+        loss = diceLoss(prediction, segs) + (lambd * mean_entropy)
 
     gradients = tape.gradient(loss, Model.trainable_variables)
     ModelOptimiser.apply_gradients(zip(gradients, Model.trainable_variables))

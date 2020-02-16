@@ -29,6 +29,7 @@ parser.add_argument('--folds', '-f', help="Number of cross-validation folds", ty
 parser.add_argument('--crossval', '-c', help="Fold number", type=int, nargs='?', const=0, default=0)
 parser.add_argument('--gpu', '-g', help="GPU number", type=int, nargs='?', const=0, default=0)
 parser.add_argument('--eta', '-e', help="Learning rate", type=float, nargs='?', const=0.001, default=0.001)
+parser.add_argument('--lambd', '-l', help="Entropy hyperparameter", type=float, nargs='?', const=0.0, default=0.0)
 arguments = parser.parse_args()
 
 # Generate file path and data path
@@ -49,6 +50,7 @@ EPOCHS = arguments.epochs
 NUM_FOLDS = arguments.folds
 FOLD = arguments.crossval
 ETA = arguments.eta # Learning rate
+LAMBD = arguments.lambd # Entropy hyperparameter
 NUM_EX = 4 # Number of example images to display
 
 if FOLD >= NUM_FOLDS and NUM_FOLDS != 0:
@@ -69,7 +71,7 @@ if not os.path.exists(MODEL_SAVE_PATH) and NUM_FOLDS == 0:
 
 IMAGE_SAVE_PATH = f"{FILE_PATH}images/{EXPT_NAME}/"
 
-if not os.path.exists(IMAGE_SAVE_PATH) and NUM_FOLDS == 0:
+if not os.path.exists(IMAGE_SAVE_PATH):
     os.mkdir(IMAGE_SAVE_PATH)
 
 # Open log file
@@ -152,7 +154,7 @@ start_time = time.time()
 # Training
 for epoch in range(EPOCHS):
     for img, seg in train_ds.batch(MB_SIZE):
-        temp_metric, temp_entropy = trainStep(img, seg, UNet, Optimiser)
+        temp_metric, temp_entropy = trainStep(img, seg, UNet, Optimiser, LAMBD)
         train_metric += temp_metric
         entropy_metric += temp_entropy
         train_count += 1
