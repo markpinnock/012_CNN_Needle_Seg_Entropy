@@ -13,12 +13,12 @@ def diceLoss(pred, mask):
 
 
 def kernelEntropyCalc(Model):
-    entropy_sum = 0
+    entropy_vec = np.zeros(64)
 
     for i in range(64):
-        input_noise = tf.random.uniform([1, 512, 512, 3, 1], -1, 1)
+        input_noise = tf.random.uniform([1, 64, 64, 3, 1], -1, 1)
 
-        for j in range(10):
+        for j in range(5):
             with tf.GradientTape() as entropy_tape:
                 entropy_tape.watch(input_noise)
                 _, dn5 = Model(input_noise)
@@ -33,22 +33,22 @@ def kernelEntropyCalc(Model):
         prob = counts / np.sum(counts)
         prob = prob[np.nonzero(prob)]
         entropy = -np.sum(prob * np.log2(prob))
-        entropy_sum += entropy
+        entropy_vec[i] = entropy
 
-    return entropy_sum / 64
+    return entropy_vec
 
 
 def trainStep(imgs, segs, Model, ModelOptimiser, lambd):
-    mean_entropy = kernelEntropyCalc(Model)
+    entropies = kernelEntropyCalc(Model)
 
     with tf.GradientTape() as tape:
         prediction, _ = Model(imgs, training=True)
-        loss = diceLoss(prediction, segs) + (lambd * mean_entropy)
+        loss = diceLoss(prediction, segs) + (lambd * np.median(entropies))
 
     gradients = tape.gradient(loss, Model.trainable_variables)
     ModelOptimiser.apply_gradients(zip(gradients, Model.trainable_variables))
 
-    return loss, mean_entropy
+    return loss, entropies
 
 
 @tf.function

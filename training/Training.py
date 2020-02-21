@@ -60,7 +60,7 @@ if FOLD >= NUM_FOLDS and NUM_FOLDS != 0:
 GPU = arguments.gpu
 
 # Generate experiment name and save paths
-EXPT_NAME = f"nc{NC}_ep{EPOCHS}_eta{ETA}"
+EXPT_NAME = f"nc{NC}_ep{EPOCHS}_eta{ETA}_lam{LAMBD}"
 
 if NUM_FOLDS > 0:
     EXPT_NAME += f"_cv{FOLD}"
@@ -155,9 +155,9 @@ start_time = time.time()
 # Training
 for epoch in range(EPOCHS):
     for img, seg in train_ds.batch(MB_SIZE):
-        temp_metric, temp_entropy = trainStep(img, seg, UNet, Optimiser, LAMBD)
+        temp_metric, entropies = trainStep(img, seg, UNet, Optimiser, LAMBD)
         train_metric += temp_metric
-        entropy_metric += temp_entropy
+        entropy_metric += np.median(entropies)
         train_count += 1
 
     # Validation step if required
@@ -170,7 +170,7 @@ for epoch in range(EPOCHS):
 
     # Print losses every epoch
     print(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, Entropy {entropy_metric / train_count}")
-    log_file.write(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, , Entropy {entropy_metric / train_count}\n")
+    log_file.write(f"Epoch: {epoch + 1}, Train Loss: {train_metric / train_count}, Val Loss: {val_metric / val_count}, Entropy {entropy_metric / train_count}\n")
     train_metric = 0
     val_metric = 0
 

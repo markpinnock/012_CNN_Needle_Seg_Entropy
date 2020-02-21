@@ -51,7 +51,7 @@ if __name__ == "__main__":
     random.seed(10)
 
     for i in range(N):
-        print(imgs[i], segs[i])
+        # print(imgs[i], segs[i])
         assert imgs[i][:-5] == segs[i][:-5], "HI/LO PAIRS DON'T MATCH"
 
     temp_list = list(zip(imgs, segs))
