@@ -15,7 +15,7 @@ sys.path.append('/home/mpinnock/Entropy/012_CNN_Needle_Seg_Entropy/')
 
 from Networks import UNetGen
 from utils.DataLoader import imgLoader
-from utils.TrainFuncs import trainStep, valStep
+from utils.TrainFuncs import kernelEntropyCalc, trainStep, valStep
 
 
 # Handle arguments
@@ -200,6 +200,10 @@ for epoch in range(EPOCHS):
 
 if NUM_FOLDS == 0:
     UNet.save_weights(f"{MODEL_SAVE_PATH}{EXPT_NAME}.ckpt")
+
+final_entropies = kernelEntropyCalc(UNet)
+print(f"Final entropies: {final_entropies}")
+log_file.write(f"{final_entropies}\n")
 
 log_file.write(f"Time: {(time.time() - start_time) / 60:.2f} min\n")
 log_file.close()
