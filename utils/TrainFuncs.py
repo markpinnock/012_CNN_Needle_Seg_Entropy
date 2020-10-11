@@ -4,7 +4,12 @@ import tensorflow as tf
 
 
 @tf.function
-def diceLoss(pred, mask):
+def dice_loss(pred, mask):
+
+    """ Implements Dice loss
+        - pred: predicted segmentation
+        - mask: ground truth label """
+
     numer = tf.reduce_sum(pred * mask, axis=[1, 2, 3, 4]) * 2
     denom = tf.reduce_sum(pred, axis=[1, 2, 3, 4]) + tf.reduce_sum(mask, axis=[1, 2, 3, 4]) + 1e-6
     dice = numer / denom
@@ -12,12 +17,20 @@ def diceLoss(pred, mask):
     return 1 - tf.reduce_mean(dice)
 
 
-def kernelEntropyCalc(Model):
+def kernel_entropy_calc(Model):
+
+    """ Calculates kernel entropy of last layer of UNet decoder """
+
+    # TODO: CHANGE TO ALLOW ANY NUMBER OF CHANNELS
     entropy_vec = np.zeros(64)
 
     for i in range(64):
+        # TODO: CHANGE TO ALLOW ANY SIZE OF FEATURE MAPS
+        # Input noise is the size of last layer of decoder
         input_noise = tf.random.uniform([1, 64, 64, 3, 1], -1, 1)
 
+        # Perform gradient ascent to visualise kernel on feature map
+        """ Understanding neural networks through deep visualisation """
         for j in range(5):
             with tf.GradientTape() as entropy_tape:
                 entropy_tape.watch(input_noise)
@@ -29,6 +42,7 @@ def kernelEntropyCalc(Model):
 
         kernel = np.ravel(input_noise.numpy())
 
+        # Calculate entropy of the kernel visualisation
         counts, _ = np.histogram(kernel, 64)
         prob = counts / np.sum(counts)
         prob = prob[np.nonzero(prob)]
@@ -39,11 +53,21 @@ def kernelEntropyCalc(Model):
 
 
 def trainStep(imgs, segs, Model, ModelOptimiser, lambd):
-    entropies = kernelEntropyCalc(Model)
 
+    """ Implements training step
+        - imgs: input images
+        - segs: segmentation labels
+        - Model: model to be trained (keras.Model)
+        - ModelOptimiser: e.g. keras.optimizers.Adam()
+        - lambd: regularisation parameter (for kernel entropy) """
+
+    # Calculate kernel entropy
+    entropies = kernel_cntropy_calc(Model)
+
+    # TODO: subclass UNet and convert train_step to class method
     with tf.GradientTape() as tape:
         prediction, _ = Model(imgs, training=True)
-        loss = diceLoss(prediction, segs) + (lambd * np.median(entropies))
+        loss = dice_loss(prediction, segs) + (lambd * np.median(entropies))
 
     gradients = tape.gradient(loss, Model.trainable_variables)
     ModelOptimiser.apply_gradients(zip(gradients, Model.trainable_variables))
@@ -52,9 +76,12 @@ def trainStep(imgs, segs, Model, ModelOptimiser, lambd):
 
 
 @tf.function
-def valStep(imgs, labels, Model):
+def val_step(imgs, labels, Model):
+    """ Implements validation step """
+
+    # TODO: subclass UNet and convert val_step to class method
     prediction, _ = Model(imgs, training=False)
-    loss = diceLoss(prediction, labels)
+    loss = dice_loss(prediction, labels)
     
     return loss
 

@@ -47,7 +47,9 @@ def UNetGen(input_shape, nc):
 
     """ Implements UNet
         - input_shape: size of input volumes
-        - nc: number of channels in first block """
+        - nc: number of channels in first block
+        
+        Returns output layer as well as final decoder layer """
 
     # TODO: SUBCLASS keras.Model
     inputlayer = keras.layers.Input(shape=input_shape)

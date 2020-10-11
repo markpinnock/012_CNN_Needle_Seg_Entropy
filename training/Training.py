@@ -14,9 +14,12 @@ sys.path.append('..')
 sys.path.append('/home/mpinnock/Entropy/012_CNN_Needle_Seg_Entropy/')
 
 from Networks import UNetGen
-from utils.DataLoader import imgLoader
-from utils.TrainFuncs import kernelEntropyCalc, trainStep, valStep
+from utils.DataLoader import img_loader
+from utils.TrainFuncs import kernel_entropy_calc, train_step, val_step
 
+
+""" Training script for entropy-guided UNet """
+# TODO: DATA AUGMENTATION
 
 # Handle arguments
 parser = ArgumentParser()
@@ -155,7 +158,7 @@ start_time = time.time()
 # Training
 for epoch in range(EPOCHS):
     for img, seg in train_ds.batch(MB_SIZE):
-        temp_metric, entropies = trainStep(img, seg, UNet, Optimiser, LAMBD)
+        temp_metric, entropies = train_step(img, seg, UNet, Optimiser, LAMBD)
         train_metric += temp_metric
         entropy_metric += np.median(entropies)
         train_count += 1
@@ -163,7 +166,7 @@ for epoch in range(EPOCHS):
     # Validation step if required
     if NUM_FOLDS > 0:
         for img, seg in val_ds.batch(MB_SIZE):
-            val_metric += valStep(img, seg, UNet)
+            val_metric += val_step(img, seg, UNet)
             val_count += 1
     else:
         val_count = 1e-6
@@ -201,7 +204,7 @@ for epoch in range(EPOCHS):
 if NUM_FOLDS == 0:
     UNet.save_weights(f"{MODEL_SAVE_PATH}{EXPT_NAME}.ckpt")
 
-final_entropies = kernelEntropyCalc(UNet)
+final_entropies = kernel_entropy_calc(UNet)
 print(f"Final entropies: {final_entropies}")
 log_file.write(f"{final_entropies}\n")
 
